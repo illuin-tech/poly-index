@@ -1,7 +1,5 @@
 package tech.illuin.indexed;
 
-import tech.illuin.indexed.exception.UndefinedKeyException;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -97,13 +95,6 @@ public interface IndexedStore<T>
 
     List<T> get(List<Query<T>> queries);
 
-    /**
-     * Returns all entries under the provided index key.
-     *
-     * @param key
-     * @return
-     * @throws UndefinedKeyException
-     */
     List<T> getAll(Key<T> key);
 
     default List<T> getMatch(T match, Key<T> key)
@@ -116,13 +107,6 @@ public interface IndexedStore<T>
         return this.get(keys.stream().map(key -> key.match(match)).collect(Collectors.toList()));
     }
 
-    /**
-     * Counts all entries under the provided index key.
-     *
-     * @param key
-     * @return
-     * @throws UndefinedKeyException
-     */
     int count(Key<T> key);
 
     default List<T> remove(Object match, Key<T> key)
