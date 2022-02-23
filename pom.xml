@@ -87,7 +87,13 @@
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>https://nexus.illuin-tech.com/repository/maven-public/</url>
+            <name>Releases</name>
+            <url>https://nexus.illuin-tech.com/repository/maven-releases/</url>
         </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <name>Snapshot</name>
+            <url>https://nexus.illuin-tech.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
     </distributionManagement>
 </project>
