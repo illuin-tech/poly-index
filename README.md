@@ -10,7 +10,7 @@ Add the following in your `pom.xml`:
 <dependency>
     <groupId>tech.illuin</groupId>
     <artifactId>indexed-store</artifactId>
-    <version>0.1.3</version>
+    <version>0.2</version>
 </dependency>
 ```
 
