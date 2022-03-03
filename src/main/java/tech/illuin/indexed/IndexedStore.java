@@ -52,6 +52,11 @@ public interface IndexedStore<T>
         return this.contains(keys.stream().map(key -> key.match(match)).collect(Collectors.toList()));
     }
 
+    default Optional<T> getFirst(Object match, Key<T> key)
+    {
+        return this.getFirst(Collections.singletonList(key.query(match)));
+    }
+
     default Optional<T> getFirst(Object match, List<Key<T>> keys)
     {
         return this.getFirst(keys.stream().map(key -> key.query(match)).collect(Collectors.toList()));
