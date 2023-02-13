@@ -1,5 +1,11 @@
 package tech.illuin.indexed;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tech.illuin.indexed.exception.IndexClosingException;
+import tech.illuin.indexed.key.Key;
+import tech.illuin.indexed.query.Query;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -9,8 +15,10 @@ import java.util.stream.Collectors;
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
  */
-public interface IndexedStore<T>
+public interface IndexedStore<T> extends AutoCloseable
 {
+    Logger logger = LoggerFactory.getLogger(IndexedStore.class);
+
     IndexedStore<T> push(T value);
 
     default IndexedStore<T> pushAll(Collection<T> values)
@@ -127,4 +135,7 @@ public interface IndexedStore<T>
     }
 
     boolean isEmpty();
+
+    @Override
+    default void close() throws IndexClosingException {}
 }

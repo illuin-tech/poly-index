@@ -1,6 +1,8 @@
 package tech.illuin.indexed;
 
+import tech.illuin.indexed.key.Key;
 import tech.illuin.indexed.lock.RRWLock;
+import tech.illuin.indexed.query.Query;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +25,7 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     }
 
     @Override
-    protected Map<Key<T>, ValueMap<T>> createMap()
+    protected <V> Map<Key<T>, V> createMap()
     {
         return new ConcurrentHashMap<>();
     }

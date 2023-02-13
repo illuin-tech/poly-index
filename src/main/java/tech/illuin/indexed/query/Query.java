@@ -1,4 +1,6 @@
-package tech.illuin.indexed;
+package tech.illuin.indexed.query;
+
+import tech.illuin.indexed.key.Key;
 
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
