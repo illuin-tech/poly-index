@@ -1,9 +1,15 @@
 package tech.illuin.indexed;
 
+import tech.illuin.indexed.exception.IndexClosingException;
 import tech.illuin.indexed.exception.UndefinedKeyException;
+import tech.illuin.indexed.key.Key;
+import tech.illuin.indexed.operator.IndexFamily;
+import tech.illuin.indexed.operator.IndexOperator;
+import tech.illuin.indexed.operator.lucene.LuceneOperator;
+import tech.illuin.indexed.operator.map.MapOperator;
+import tech.illuin.indexed.query.Query;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * TODO: Migrate towards https://github.com/npgall/cqengine ?
@@ -13,7 +19,7 @@ import java.util.stream.Collectors;
 public class MapStore<T> implements IndexedStore<T>
 {
     private final Index<T> index;
-    private final Map<Key<T>, ValueMap<T>> maps;
+    private final Map<IndexFamily, IndexOperator<T>> operators;
 
     /**
      *
@@ -21,13 +27,15 @@ public class MapStore<T> implements IndexedStore<T>
      */
     public MapStore(Index<T> index)
     {
+        logger.debug("Initializing map store with index registry containing {} key(s)", index.size());
         this.index = index;
-        this.maps = this.createMap();
-        for (Key<T> key : index.keys())
-            this.maps.put(key, new ValueMap<>());
+        this.operators = Map.of(
+            IndexFamily.MAP, new MapOperator<>(index, this::createMap),
+            IndexFamily.LUCENE, new LuceneOperator<>(index, this::createMap)
+        );
     }
 
-    protected Map<Key<T>, ValueMap<T>> createMap()
+    protected <V> Map<Key<T>, V> createMap()
     {
         return new HashMap<>();
     }
@@ -41,17 +49,7 @@ public class MapStore<T> implements IndexedStore<T>
             if (key == null)
                 continue;
 
-            if (!this.maps.get(indexKey).containsKey(key))
-                this.maps.get(indexKey).put(key, new ArrayList<>());
-
-            List<T> values = this.maps.get(indexKey).get(key);
-
-            /* If we need to index all submitted values OR it has not been initialized yet */
-            /* Note that this already takes care of IndexingType.FIRST by initializing the data but never updating it */
-            if (indexKey.type() == IndexingType.ALL || values.isEmpty())
-                values.add(value);
-            else if (indexKey.type() == IndexingType.LAST)
-                values.set(0, value);
+            this.getOperator(indexKey.family()).push(indexKey, key, value);
         }
         return this;
     }
@@ -65,7 +63,7 @@ public class MapStore<T> implements IndexedStore<T>
             if (key == null)
                 continue;
 
-            if (this.maps.get(indexKey).containsKey(key))
+            if (this.getOperator(indexKey.family()).containsMatch(indexKey, key))
                 return true;
         }
         return false;
@@ -77,70 +75,59 @@ public class MapStore<T> implements IndexedStore<T>
         for (Query<T> query : queries)
         {
             Key<T> key = query.key();
-            Object value = query.value();
-            if (!this.maps.containsKey(key))
-                continue;
-            if (value == null || !this.maps.get(key).containsKey(value))
-                continue;
+            Optional<List<T>> results = this.getOperator(key.family()).get(key, query.value());
 
-            return this.maps.get(key).get(value);
+            if (results.map(l -> !l.isEmpty()).orElse(false))
+                return results.get();
         }
 
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
     
     @Override
     public List<T> getAll(Key<T> key)
     {
-        if (!this.maps.containsKey(key))
-            throw new UndefinedKeyException("The provided key is not part of this store's index.");
-
-        return this.maps.get(key).values().stream()
-            .flatMap(List::stream)
-            .collect(Collectors.toList())
-        ;
+        return this.getOperator(key.family()).getAll(key).orElseGet(Collections::emptyList);
     }
     
     @Override
     public int count(Key<T> key)
     {
-        if (!this.maps.containsKey(key))
-            throw new UndefinedKeyException("The provided key is not part of this store's index.");
-
-        return this.maps.get(key).values().stream()
-            .map(Collection::size)
-            .reduce(Integer::sum)
-            .orElse(0)
-        ;
+        return this.getOperator(key.family()).count(key);
     }
     
     @Override
     public List<T> remove(Query<T> query)
     {
-        Key<T> key = query.key();
-        Object value = query.value();
-
         if (!this.index.keys().contains(query.key()))
             throw new UndefinedKeyException("The requested key has not been registered as part of this store's index.");
 
-        if (!this.maps.containsKey(key))
-            return Collections.emptyList();
-        if (value == null || !this.maps.get(key).containsKey(value))
-            return Collections.emptyList();
+        Key<T> key = query.key();
+        return this.getOperator(key.family()).remove(key, query.value()).orElseGet(Collections::emptyList);
+    }
 
-        return this.maps.get(key).remove(value);
+    private IndexOperator<T> getOperator(IndexFamily family)
+    {
+        IndexOperator<T> operator = this.operators.get(family);
+        if (operator == null)
+            throw new IllegalArgumentException("The provided family " + family + " does not have a corresponding IndexOperator");
+        return operator;
     }
 
     @Override
     public boolean isEmpty()
     {
-        for (ValueMap<T> vals : this.maps.values())
-        {
-            if (!vals.isEmpty())
-                return false;
-        }
-        return true;
+        return this.operators.values().stream()
+            .map(IndexOperator::isEmpty)
+            .reduce((a, b) -> a && b)
+            .orElse(true)
+        ;
     }
 
-    protected static class ValueMap<T> extends HashMap<Object, List<T>> {}
+    @Override
+    public void close() throws IndexClosingException
+    {
+        for (IndexOperator<T> operator : this.operators.values())
+            operator.close();
+    }
 }
