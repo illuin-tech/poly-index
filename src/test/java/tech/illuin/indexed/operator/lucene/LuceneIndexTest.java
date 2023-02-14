@@ -188,13 +188,13 @@ public class LuceneIndexTest
 
     public record Indexable(String a, String b, int c)
     {
-        public static final Key<Indexable> ABC = Key.of("ABC", idx -> String.join(" ", idx.a(), idx.b(), Objects.toString(idx.c())));
-        public static final Key<Indexable> AB = Key.of("AB", idx -> String.join(" ", idx.a(), idx.b()));
+        public static final Key<Indexable> ABC = Key.of("ABC", idx -> String.join(":", idx.a(), idx.b(), Objects.toString(idx.c())));
+        public static final Key<Indexable> AB = Key.of("AB", idx -> String.join(":", idx.a(), idx.b()));
         public static final Key<Indexable> A = Key.of("A", Indexable::a);
         public static final Key<Indexable> A_LUCENE = Key.of(Indexable::a, IndexingType.LUCENE);
         public static final Key<Indexable> B_LUCENE = Key.ofLucene("B_LUCENE", Indexable::b);
         public static final Key<Indexable> C_LUCENE = Key.ofLucene("C_LUCENE", Indexable::c);
-        public static final Key<Indexable> AB_LUCENE = Key.ofLucene("AB_LUCENE", idx -> String.join(" ", idx.a(), idx.b()));
+        public static final Key<Indexable> AB_LUCENE = Key.ofLucene("AB_LUCENE", idx -> String.join(":", idx.a(), idx.b()));
         public static final Key<Indexable> B_LUCENE_FUZZY = Key.ofLucene("B_LUCENE_FUZZY", Indexable::b, new FuzzyMatchStrategy());
     }
 }

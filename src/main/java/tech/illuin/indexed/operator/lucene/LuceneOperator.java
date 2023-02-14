@@ -46,7 +46,8 @@ public class LuceneOperator<T> implements IndexOperator<T>
         {
             if (key.family() != IndexFamily.LUCENE)
                 continue;
-            this.luceneIndexes.put((LuceneKey<T>) key, new LuceneIndexer());
+            LuceneKey<T> luceneKey = (LuceneKey<T>) key;
+            this.luceneIndexes.put(luceneKey, new LuceneIndexer(luceneKey.strategy()));
         }
         if (!this.luceneIndexes.isEmpty())
             logger.trace("Initialized lucene operator for index registry with {} LUCENE key(s)", this.luceneIndexes.size());
@@ -78,7 +79,7 @@ public class LuceneOperator<T> implements IndexOperator<T>
             LuceneKey<T> luceneKey = this.validateKey(indexKey, true);
 
             LuceneIndexer indexer = this.luceneIndexes.get(luceneKey);
-            Query query = indexer.parser().parse(luceneKey.strategy().createQuery(key));
+            Query query = luceneKey.strategy().createQuery(indexer.parser(), key);
             TopDocs top = indexer.searcher().search(query, 1);
 
             return top.totalHits.value > 0;
@@ -95,7 +96,7 @@ public class LuceneOperator<T> implements IndexOperator<T>
             LuceneKey<T> luceneKey = this.validateKey(indexKey, true);
 
             LuceneIndexer indexer = this.luceneIndexes.get(luceneKey);
-            Query query = indexer.parser().parse(luceneKey.strategy().createQuery(key));
+            Query query = luceneKey.strategy().createQuery(indexer.parser(), key);
             TopDocs top = indexer.searcher().search(query, luceneKey.strategy().maxResults());
 
             return Optional.of(this.getResults(luceneKey, indexer, top).toList());
@@ -137,7 +138,7 @@ public class LuceneOperator<T> implements IndexOperator<T>
             LuceneKey<T> luceneKey = this.validateKey(indexKey, true);
 
             LuceneIndexer indexer = this.luceneIndexes.get(luceneKey);
-            Query query = indexer.parser().parse(luceneKey.strategy().createQuery(key));
+            Query query = luceneKey.strategy().createQuery(indexer.parser(), key);
             indexer.writer().deleteDocuments(query);
 
             return Optional.empty();

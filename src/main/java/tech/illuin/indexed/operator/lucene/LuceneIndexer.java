@@ -1,7 +1,6 @@
 package tech.illuin.indexed.operator.lucene;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -11,6 +10,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import tech.illuin.indexed.operator.lucene.strategy.IndexStrategy;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -28,10 +28,10 @@ public class LuceneIndexer implements Closeable
     public static final String UID_FIELD = "uid";
     public static final String DEFAULT_FIELD = "key";
 
-    public LuceneIndexer()
+    public LuceneIndexer(IndexStrategy strategy)
     {
         try {
-            Analyzer analyzer = new StandardAnalyzer();
+            Analyzer analyzer = strategy.getAnalyzer();
             this.directory = new ByteBuffersDirectory();
             this.writer = new IndexWriter(this.directory, new IndexWriterConfig(analyzer));
             this.reader = DirectoryReader.open(this.writer);

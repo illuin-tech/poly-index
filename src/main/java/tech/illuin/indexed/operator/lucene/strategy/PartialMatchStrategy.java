@@ -1,12 +1,17 @@
 package tech.illuin.indexed.operator.lucene.strategy;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static tech.illuin.indexed.operator.lucene.LuceneIndexer.DEFAULT_FIELD;
@@ -16,22 +21,32 @@ import static tech.illuin.indexed.operator.lucene.LuceneIndexer.DEFAULT_FIELD;
  */
 public class PartialMatchStrategy implements IndexStrategy
 {
+    private final Analyzer analyzer;
     private final int maxResults;
 
     public PartialMatchStrategy()
     {
-        this(DEFAULT_MAX_RESULTS);
+        this(opts -> {});
     }
 
-    public PartialMatchStrategy(int maxResults)
+    public PartialMatchStrategy(Consumer<Options> optionBuilder)
     {
-        this.maxResults = maxResults;
+        var options = new Options();
+        optionBuilder.accept(options);
+        this.analyzer = options.analyzer;
+        this.maxResults = options.maxResults;
     }
 
     @Override
-    public String createQuery(Object term)
+    public Analyzer getAnalyzer()
     {
-        return DEFAULT_FIELD + ":" + QueryParser.escape(Objects.toString(term)) + "*";
+        return this.analyzer;
+    }
+
+    @Override
+    public Query createQuery(QueryParser parser, Object term) throws ParseException
+    {
+        return parser.parse(DEFAULT_FIELD + ":" + QueryParser.escape(Objects.toString(term)) + "*");
     }
 
     @Override
@@ -54,5 +69,25 @@ public class PartialMatchStrategy implements IndexStrategy
         Comparator<ScoredDocument<T>> scoreComparator = (o1, o2) -> Float.compare(o2.scoreDoc().score, o1.scoreDoc().score);
         Comparator<ScoredDocument<T>> lengthComparator = Comparator.comparingInt(o -> o.document().get(DEFAULT_FIELD).length());
         return stream.sorted(scoreComparator.thenComparing(lengthComparator));
+    }
+
+    public static class Options
+    {
+        private int maxResults = DEFAULT_MAX_RESULTS;
+        private Analyzer analyzer = new KeywordAnalyzer();
+
+        private Options() {}
+
+        public Options setMaxResults(int maxResults)
+        {
+            this.maxResults = maxResults;
+            return this;
+        }
+
+        public Options setAnalyzer(Analyzer analyzer)
+        {
+            this.analyzer = analyzer;
+            return this;
+        }
     }
 }
