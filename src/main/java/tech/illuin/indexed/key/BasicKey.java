@@ -1,6 +1,6 @@
 package tech.illuin.indexed.key;
 
-import tech.illuin.indexed.IndexingType;
+import tech.illuin.indexed.IndexType;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -11,15 +11,15 @@ import java.util.function.Function;
 public class BasicKey<T> implements Key<T>
 {
     private final Function<T, ?> function;
-    private final IndexingType type;
+    private final IndexType type;
     private final String name;
 
-    public BasicKey(Function<T, ?> function, IndexingType type)
+    public BasicKey(Function<T, ?> function, IndexType type)
     {
         this(null, function, type);
     }
 
-    public BasicKey(String name, Function<T, ?> function, IndexingType type)
+    public BasicKey(String name, Function<T, ?> function, IndexType type)
     {
         this.function = function;
         this.type = type;
@@ -27,13 +27,13 @@ public class BasicKey<T> implements Key<T>
     }
 
     @Override
-    public Object compute(T value)
+    public Object computeIndexingKey(T value)
     {
         return this.function.apply(value);
     }
 
     @Override
-    public IndexingType type()
+    public IndexType type()
     {
         return this.type;
     }

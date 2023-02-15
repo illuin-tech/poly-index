@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static tech.illuin.indexed.ConcurrentMapStoreTest.Indexable.*;
+import static tech.illuin.indexed.operator.map.MapIndexType.FIRST;
 
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
@@ -217,6 +218,6 @@ public class ConcurrentMapStoreTest
         public static final Key<Indexable> A = Key.of("A", Indexable::a);
         public static final Key<Indexable> B = Key.of("B", Indexable::b);
         public static final Key<Indexable> C = Key.of("C", Indexable::c);
-        public static final Key<Indexable> B_UNIQUE = Key.of(Indexable::b, IndexingType.FIRST);
+        public static final Key<Indexable> B_UNIQUE = Key.of(Indexable::b, FIRST);
     }
 }

@@ -21,7 +21,7 @@ import static tech.illuin.indexed.operator.lucene.LuceneIndexer.DEFAULT_FIELD;
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
  */
-public class FuzzyMatchStrategy implements IndexStrategy
+public class FuzzyMatchStrategy implements LuceneIndexStrategy
 {
     private final Analyzer analyzer;
     private final int maxResults;

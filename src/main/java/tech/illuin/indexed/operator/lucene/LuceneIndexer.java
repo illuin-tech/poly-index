@@ -10,7 +10,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import tech.illuin.indexed.operator.lucene.strategy.IndexStrategy;
+import tech.illuin.indexed.operator.lucene.strategy.LuceneIndexStrategy;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class LuceneIndexer implements Closeable
     public static final String UID_FIELD = "uid";
     public static final String DEFAULT_FIELD = "key";
 
-    public LuceneIndexer(IndexStrategy strategy)
+    public LuceneIndexer(LuceneIndexStrategy strategy)
     {
         try {
             Analyzer analyzer = strategy.getAnalyzer();

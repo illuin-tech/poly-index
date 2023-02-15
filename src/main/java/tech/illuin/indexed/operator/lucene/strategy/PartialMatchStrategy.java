@@ -19,7 +19,7 @@ import static tech.illuin.indexed.operator.lucene.LuceneIndexer.DEFAULT_FIELD;
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
  */
-public class PartialMatchStrategy implements IndexStrategy
+public class PartialMatchStrategy implements LuceneIndexStrategy
 {
     private final Analyzer analyzer;
     private final int maxResults;

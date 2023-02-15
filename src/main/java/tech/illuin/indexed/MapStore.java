@@ -3,7 +3,6 @@ package tech.illuin.indexed;
 import tech.illuin.indexed.exception.IndexClosingException;
 import tech.illuin.indexed.exception.UndefinedKeyException;
 import tech.illuin.indexed.key.Key;
-import tech.illuin.indexed.operator.IndexFamily;
 import tech.illuin.indexed.operator.IndexOperator;
 import tech.illuin.indexed.operator.lucene.LuceneOperator;
 import tech.illuin.indexed.operator.map.MapOperator;
@@ -19,7 +18,7 @@ import java.util.*;
 public class MapStore<T> implements IndexedStore<T>
 {
     private final Index<T> index;
-    private final Map<IndexFamily, IndexOperator<T>> operators;
+    private final Map<IndexType, IndexOperator<T>> operators;
 
     /**
      *
@@ -30,8 +29,8 @@ public class MapStore<T> implements IndexedStore<T>
         logger.debug("Initializing map store with index registry containing {} key(s)", index.size());
         this.index = index;
         this.operators = Map.of(
-            IndexFamily.MAP, new MapOperator<>(index, this::createMap),
-            IndexFamily.LUCENE, new LuceneOperator<>(index, this::createMap)
+            IndexType.MAP, new MapOperator<>(index, this::createMap),
+            IndexType.LUCENE, new LuceneOperator<>(index, this::createMap)
         );
     }
 
@@ -45,11 +44,8 @@ public class MapStore<T> implements IndexedStore<T>
     {
         for (Key<T> indexKey : this.index.keys())
         {
-            Object key = indexKey.compute(value);
-            if (key == null)
-                continue;
-
-            this.getOperator(indexKey.family()).push(indexKey, key, value);
+            Object key = indexKey.computeIndexingKey(value);
+            this.getOperator(indexKey.type()).push(indexKey, key, value);
         }
         return this;
     }
@@ -59,11 +55,8 @@ public class MapStore<T> implements IndexedStore<T>
     {
         for (Key<T> indexKey : this.index.keys())
         {
-            Object key = indexKey.compute(match);
-            if (key == null)
-                continue;
-
-            if (this.getOperator(indexKey.family()).containsMatch(indexKey, key))
+            Object key = indexKey.computeQueryingKey(match);
+            if (this.getOperator(indexKey.type()).contains(indexKey, key))
                 return true;
         }
         return false;
@@ -75,7 +68,7 @@ public class MapStore<T> implements IndexedStore<T>
         for (Query<T> query : queries)
         {
             Key<T> key = query.key();
-            Optional<List<T>> results = this.getOperator(key.family()).get(key, query.value());
+            Optional<List<T>> results = this.getOperator(key.type()).get(key, query.value());
 
             if (results.map(l -> !l.isEmpty()).orElse(false))
                 return results.get();
@@ -87,13 +80,13 @@ public class MapStore<T> implements IndexedStore<T>
     @Override
     public List<T> getAll(Key<T> key)
     {
-        return this.getOperator(key.family()).getAll(key).orElseGet(Collections::emptyList);
+        return this.getOperator(key.type()).getAll(key).orElseGet(Collections::emptyList);
     }
     
     @Override
     public int count(Key<T> key)
     {
-        return this.getOperator(key.family()).count(key);
+        return this.getOperator(key.type()).count(key);
     }
     
     @Override
@@ -103,10 +96,10 @@ public class MapStore<T> implements IndexedStore<T>
             throw new UndefinedKeyException("The requested key has not been registered as part of this store's index.");
 
         Key<T> key = query.key();
-        return this.getOperator(key.family()).remove(key, query.value()).orElseGet(Collections::emptyList);
+        return this.getOperator(key.type()).remove(key, query.value()).orElseGet(Collections::emptyList);
     }
 
-    private IndexOperator<T> getOperator(IndexFamily family)
+    private IndexOperator<T> getOperator(IndexType family)
     {
         IndexOperator<T> operator = this.operators.get(family);
         if (operator == null)

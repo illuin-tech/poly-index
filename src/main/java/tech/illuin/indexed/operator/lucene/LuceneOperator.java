@@ -11,10 +11,10 @@ import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.illuin.indexed.Index;
+import tech.illuin.indexed.IndexType;
 import tech.illuin.indexed.exception.IndexClosingException;
 import tech.illuin.indexed.exception.UndefinedKeyException;
 import tech.illuin.indexed.key.Key;
-import tech.illuin.indexed.operator.IndexFamily;
 import tech.illuin.indexed.operator.IndexOperator;
 import tech.illuin.indexed.operator.lucene.strategy.ScoredDocument;
 
@@ -44,7 +44,7 @@ public class LuceneOperator<T> implements IndexOperator<T>
 
         for (Key<T> key : index.keys())
         {
-            if (key.family() != IndexFamily.LUCENE)
+            if (key.type() != IndexType.LUCENE)
                 continue;
             LuceneKey<T> luceneKey = (LuceneKey<T>) key;
             this.luceneIndexes.put(luceneKey, new LuceneIndexer(luceneKey.strategy()));
@@ -73,7 +73,7 @@ public class LuceneOperator<T> implements IndexOperator<T>
     }
 
     @Override
-    public boolean containsMatch(Key<T> indexKey, Object key)
+    public boolean contains(Key<T> indexKey, Object key)
     {
         try {
             LuceneKey<T> luceneKey = this.validateKey(indexKey, true);
