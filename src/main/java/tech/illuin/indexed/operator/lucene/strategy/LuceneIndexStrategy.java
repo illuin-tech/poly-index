@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
  */
-public interface IndexStrategy
+public interface LuceneIndexStrategy
 {
     int DEFAULT_MAX_RESULTS = 25;
 

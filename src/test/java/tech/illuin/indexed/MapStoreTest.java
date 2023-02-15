@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static tech.illuin.indexed.MapStoreTest.Indexable.*;
+import static tech.illuin.indexed.operator.map.MapIndexType.FIRST;
+import static tech.illuin.indexed.operator.map.MapIndexType.LAST;
 
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
@@ -264,8 +266,8 @@ public class MapStoreTest
         public static final Key<Indexable> A = Key.of("A", Indexable::a);
         public static final Key<Indexable> B = Key.of("B", Indexable::b);
         public static final Key<Indexable> C = Key.of("C", Indexable::c);
-        public static final Key<Indexable> A_UNIQUE = Key.of(Indexable::a, IndexingType.FIRST);
-        public static final Key<Indexable> B_UNIQUE = Key.of(Indexable::b, IndexingType.FIRST);
-        public static final Key<Indexable> AB_UNIQUE = Key.of(idx -> String.join(":", idx.a(), idx.b()), IndexingType.LAST);
+        public static final Key<Indexable> A_UNIQUE = Key.of(Indexable::a, FIRST);
+        public static final Key<Indexable> B_UNIQUE = Key.of(Indexable::b, FIRST);
+        public static final Key<Indexable> AB_UNIQUE = Key.of(idx -> String.join(":", idx.a(), idx.b()), LAST);
     }
 }

@@ -13,7 +13,7 @@ public interface IndexOperator<T> extends AutoCloseable
 {
     void push(Key<T> indexKey, Object key, T value);
 
-    boolean containsMatch(Key<T> indexKey, Object key);
+    boolean contains(Key<T> indexKey, Object key);
 
     Optional<List<T>> get(Key<T> indexKey, Object key);
 

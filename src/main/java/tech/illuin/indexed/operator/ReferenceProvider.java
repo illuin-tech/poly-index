@@ -1,6 +1,6 @@
 package tech.illuin.indexed.operator;
 
-import tech.illuin.indexed.IndexingType;
+import tech.illuin.indexed.IndexType;
 import tech.illuin.indexed.key.Key;
 
 import java.util.function.Function;
@@ -10,5 +10,5 @@ import java.util.function.Function;
  */
 public interface ReferenceProvider
 {
-    <T> Key<T> provide(Function<T, ?> function, IndexingType type);
+    <T> Key<T> provide(Function<T, ?> function, IndexType type);
 }

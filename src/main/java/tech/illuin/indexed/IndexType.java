@@ -1,29 +1,29 @@
-package tech.illuin.indexed.operator;
+package tech.illuin.indexed;
 
-import tech.illuin.indexed.IndexingType;
-import tech.illuin.indexed.key.BasicKey;
 import tech.illuin.indexed.key.Key;
+import tech.illuin.indexed.operator.ReferenceProvider;
 import tech.illuin.indexed.operator.lucene.LuceneKey;
+import tech.illuin.indexed.operator.map.MapKey;
 
 import java.util.function.Function;
 
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
  */
-public enum IndexFamily
+public enum IndexType
 {
-    MAP(BasicKey::new),
+    MAP((SpecificProvider) MapKey::new),
     LUCENE((SpecificProvider) LuceneKey::new),
     ;
 
     private final ReferenceProvider provider;
 
-    IndexFamily(ReferenceProvider provider)
+    IndexType(ReferenceProvider provider)
     {
         this.provider = provider;
     }
 
-    public <T> Key<T> provide(Function<T, ?> function, IndexingType type)
+    public <T> Key<T> provide(Function<T, ?> function, IndexType type)
     {
         return this.provider.provide(function, type);
     }
@@ -33,7 +33,7 @@ public enum IndexFamily
         <T> Key<T> provide(Function<T, ?> function);
 
         @Override
-        default <T> Key<T> provide(Function<T, ?> function, IndexingType type)
+        default <T> Key<T> provide(Function<T, ?> function, IndexType type)
         {
             return this.provide(function);
         }
