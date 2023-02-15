@@ -4,13 +4,12 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.shingle.ShingleAnalyzerWrapper;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +25,7 @@ public class FuzzyMatchStrategy implements IndexStrategy
 {
     private final Analyzer analyzer;
     private final int maxResults;
-    private final String similarity;
+    private final int maxDistance;
 
     public FuzzyMatchStrategy()
     {
@@ -39,7 +38,7 @@ public class FuzzyMatchStrategy implements IndexStrategy
         optionBuilder.accept(options);
         this.analyzer = options.analyzer;
         this.maxResults = options.maxResults;
-        this.similarity = BigDecimal.valueOf(options.similarity).setScale(1, RoundingMode.HALF_UP).toString();
+        this.maxDistance = options.maxDistance;
     }
 
     @Override
@@ -49,16 +48,16 @@ public class FuzzyMatchStrategy implements IndexStrategy
     }
 
     @Override
-    public Query createQuery(QueryParser parser, Object term) throws ParseException
+    public Query createQuery(QueryParser parser, Object term)
     {
-        return parser.parse(DEFAULT_FIELD + ":" + QueryParser.escape(Objects.toString(term)) + "~" + this.similarity);
+        return new FuzzyQuery(new Term(DEFAULT_FIELD, Objects.toString(term)), this.maxDistance);
     }
 
     @Override
     public List<Field> createFields(Object term)
     {
         return List.of(
-            new TextField(DEFAULT_FIELD, Objects.toString(term), Field.Store.YES)
+            new StringField(DEFAULT_FIELD, Objects.toString(term), Field.Store.YES)
         );
     }
 
@@ -76,10 +75,10 @@ public class FuzzyMatchStrategy implements IndexStrategy
         return stream.sorted(scoreComparator.thenComparing(lengthComparator));
     }
 
-    public static class Options
+    public static final class Options
     {
         private int maxResults = DEFAULT_MAX_RESULTS;
-        private float similarity = 0.4f;
+        private int maxDistance = 2;
         private Analyzer analyzer = new ShingleAnalyzerWrapper(new KeywordAnalyzer());
 
         private Options() {}
@@ -90,9 +89,9 @@ public class FuzzyMatchStrategy implements IndexStrategy
             return this;
         }
 
-        public Options setSimilarity(float similarity)
+        public Options setMaxDistance(int maxDistance)
         {
-            this.similarity = similarity;
+            this.maxDistance = maxDistance;
             return this;
         }
 

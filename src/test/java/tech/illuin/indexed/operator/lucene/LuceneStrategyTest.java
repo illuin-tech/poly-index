@@ -19,7 +19,8 @@ public class LuceneStrategyTest
 {
     public static final Key<Indexable> AB_PARTIAL = Key.ofLucene("AB", idx -> String.join(":", idx.a(), idx.b()), new PartialMatchStrategy());
     public static final Key<Indexable> AB_FUZZY = Key.ofLucene("AB", idx -> String.join(":", idx.a(), idx.b()), new FuzzyMatchStrategy());
-    
+    public static final Key<Indexable> AB_FUZZY_STRICT = Key.ofLucene("AB", idx -> String.join(":", idx.a(), idx.b()), new FuzzyMatchStrategy(opts -> opts.setMaxDistance(1)));
+
     @Test
     public void testPartial__shouldMatchFully()
     {

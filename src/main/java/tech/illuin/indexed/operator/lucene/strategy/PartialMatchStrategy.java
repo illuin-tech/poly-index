@@ -3,7 +3,7 @@ package tech.illuin.indexed.operator.lucene.strategy;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
@@ -53,7 +53,7 @@ public class PartialMatchStrategy implements IndexStrategy
     public List<Field> createFields(Object term)
     {
         return List.of(
-            new TextField(DEFAULT_FIELD, Objects.toString(term), Field.Store.YES)
+            new StringField(DEFAULT_FIELD, Objects.toString(term), Field.Store.YES)
         );
     }
 
@@ -71,7 +71,7 @@ public class PartialMatchStrategy implements IndexStrategy
         return stream.sorted(scoreComparator.thenComparing(lengthComparator));
     }
 
-    public static class Options
+    public static final class Options
     {
         private int maxResults = DEFAULT_MAX_RESULTS;
         private Analyzer analyzer = new KeywordAnalyzer();
