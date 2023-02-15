@@ -58,6 +58,9 @@ public class LuceneOperator<T> implements IndexOperator<T>
     {
         LuceneKey<T> luceneKey = this.validateKey(indexKey);
 
+        if (key == null)
+            return;
+
         LuceneIndexer indexer = this.luceneIndexes.get(luceneKey);
 
         UUID uid = UUID.randomUUID();

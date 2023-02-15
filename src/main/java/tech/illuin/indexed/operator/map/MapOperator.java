@@ -39,6 +39,8 @@ public class MapOperator<T> implements IndexOperator<T>
     {
         MapKey<T> mapKey = this.validateKey(indexKey, true);
 
+        if (key == null)
+            return;
         if (!this.maps.get(mapKey).containsKey(key))
             this.maps.get(mapKey).put(key, new ArrayList<>());
 

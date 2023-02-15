@@ -6,7 +6,7 @@
 
     <groupId>tech.illuin</groupId>
     <artifactId>indexed-store</artifactId>
-    <version>0.5</version>
+    <version>0.5.1</version>
 
     <name>Indexed Store</name>
     <description>Simple in-memory store with multiple/combined indexes.</description>
