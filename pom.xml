@@ -6,7 +6,7 @@
 
     <groupId>tech.illuin</groupId>
     <artifactId>indexed-store</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2</version>
 
     <name>Indexed Store</name>
     <description>Simple in-memory store with multiple/combined indexes.</description>
@@ -37,6 +37,10 @@
         <jacoco.version>0.8.8</jacoco.version>
         <checkstyle.version>10.7.0</checkstyle.version>
         <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
+        <maven-surefire.version>3.0.0-M9</maven-surefire.version>
+        <maven-source.version>3.2.1</maven-source.version>
+        <maven-javadoc.version>3.5.0</maven-javadoc.version>
+        <maven-checkstyle.version>3.1.2</maven-checkstyle.version>
     </properties>
 
     <dependencies>
@@ -85,7 +89,35 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M9</version>
+                    <version>${maven-surefire.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven-source.version}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven-javadoc.version}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
 
                 <plugin>
@@ -97,7 +129,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>${maven-checkstyle.version}</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
