@@ -27,6 +27,11 @@ public final class Index<T>
         return new Index<>(keySet);
     }
 
+    public static <T> Index<T> of(Collection<Key<T>> keys)
+    {
+        return new Index<>(keys);
+    }
+
     public Set<Key<T>> keys()
     {
         return this.keys;
