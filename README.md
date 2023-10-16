@@ -172,7 +172,7 @@ store.containsMatch(exemplar, List.of(HSCODE_CATEGORY_IDX, HSCODE_IDX));
 The order we provide keys is important: it will determine which index is checked first, and iteratively go through them until one matches.
 In the example above, we first check for the combination of both the `hsCode` and `categoryCode`, and if nothing matches, we check for the `hsCode` alone.
 
-This type of behaviour can be leveraged in a variety of ways, with iteratively more permissive indexes.
+This type of behaviour can be leveraged in a variety of ways, with increasingly more permissive indexes.
 
 ## IV. Dev Installation
 
