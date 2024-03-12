@@ -44,10 +44,19 @@ public class MapOperator<T> implements IndexOperator<T>
         if (!this.maps.get(mapKey).containsKey(key))
             this.maps.get(mapKey).put(key, new ArrayList<>());
 
-        List<T> values = this.maps.get(mapKey).get(key);
+        if (key instanceof Collection<?> multiKey)
+        {
+            multiKey.forEach(k -> {
+                logger.trace("Submitting value for multi-key \"{}\" to index {} of type {}", k, mapKey.name(), mapKey.type());
+                this.push(indexKey, k, value);
+            });
+        }
+        else {
+            List<T> values = this.maps.get(mapKey).get(key);
 
-        logger.trace("Submitting value for key \"{}\" to index {} of type {}", key, mapKey.name(), mapKey.type());
-        mapKey.strategy().push(values, value);
+            logger.trace("Submitting value for key \"{}\" to index {} of type {}", key, mapKey.name(), mapKey.type());
+            mapKey.strategy().push(values, value);
+        }
     }
 
     @Override
