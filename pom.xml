@@ -6,7 +6,7 @@
 
     <groupId>tech.illuin</groupId>
     <artifactId>indexed-store</artifactId>
-    <version>0.5.6</version>
+    <version>0.6</version>
     <packaging>jar</packaging>
 
     <name>Indexed Store</name>
