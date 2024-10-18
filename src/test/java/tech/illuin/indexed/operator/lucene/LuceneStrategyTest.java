@@ -19,7 +19,7 @@ public class LuceneStrategyTest
 {
     public static final Key<Indexable> AB_PARTIAL = Key.ofLucene("AB", idx -> String.join(":", idx.a(), idx.b()), new PartialMatchStrategy());
     public static final Key<Indexable> AB_FUZZY = Key.ofLucene("AB", idx -> String.join(":", idx.a(), idx.b()), new FuzzyMatchStrategy());
-    public static final Key<Indexable> AB_FUZZY_STRICT = Key.ofLucene("AB", idx -> String.join(":", idx.a(), idx.b()), new FuzzyMatchStrategy(opts -> opts.setMaxDistance(1)));
+    public static final Key<Indexable> B_FUZZY_STRICT = Key.ofLucene("B", Indexable::b, new FuzzyMatchStrategy(opts -> opts.setMaxDistance(1)));
 
     @Test
     public void testPartial__shouldMatchFully()
@@ -69,6 +69,23 @@ public class LuceneStrategyTest
             Assertions.assertEquals(3, store.getFirstMatch(new Indexable("value_a2", "123456790", 0), AB_FUZZY).map(Indexable::c).orElse(0));
             Assertions.assertEquals(2, store.getFirstMatch(new Indexable("value_a3", "12345678", 0), AB_FUZZY).map(Indexable::c).orElse(0));
             Assertions.assertEquals(1, store.getFirstMatch(new Indexable("value_a4", "123256", 0), AB_FUZZY).map(Indexable::c).orElse(0));
+        }
+    }
+
+    @Test
+    public void testFuzzyString__shouldMatch()
+    {
+        try (IndexedStore<Indexable> store = new MapStore<>(Index.of(B_FUZZY_STRICT)))
+        {
+            store.pushAll(List.of(
+                new Indexable("value_a1", "123456", 1),
+                new Indexable("value_a1", "123456780", 2),
+                new Indexable("value_a1", "1234567890", 3)
+            ));
+
+            Assertions.assertEquals(2, store.getFirstMatch(new Indexable(null, "123456790", 0), B_FUZZY_STRICT).map(Indexable::c).orElse(0));
+            Assertions.assertEquals(2, store.getFirstMatch(new Indexable(null, "12345678", 0), B_FUZZY_STRICT).map(Indexable::c).orElse(0));
+            Assertions.assertEquals(1, store.getFirstMatch(new Indexable(null, "123256", 0), B_FUZZY_STRICT).map(Indexable::c).orElse(0));
         }
     }
 }
