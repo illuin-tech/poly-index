@@ -24,6 +24,7 @@ import static tech.illuin.indexed.operator.lucene.LuceneIndexer.DEFAULT_FIELD;
 public class FuzzyMatchStrategy implements LuceneIndexStrategy
 {
     private final Analyzer analyzer;
+    private final QueryParser parser;
     private final int maxResults;
     private final int maxDistance;
 
@@ -39,12 +40,19 @@ public class FuzzyMatchStrategy implements LuceneIndexStrategy
         this.analyzer = options.analyzer;
         this.maxResults = options.maxResults;
         this.maxDistance = options.maxDistance;
+        this.parser = new QueryParser(DEFAULT_FIELD, this.analyzer);
     }
 
     @Override
     public Analyzer getAnalyzer()
     {
         return this.analyzer;
+    }
+
+    @Override
+    public QueryParser getParser()
+    {
+        return this.parser;
     }
 
     @Override

@@ -22,6 +22,7 @@ import static tech.illuin.indexed.operator.lucene.LuceneIndexer.DEFAULT_FIELD;
 public class PartialMatchStrategy implements LuceneIndexStrategy
 {
     private final Analyzer analyzer;
+    private final QueryParser parser;
     private final int maxResults;
 
     public PartialMatchStrategy()
@@ -35,12 +36,19 @@ public class PartialMatchStrategy implements LuceneIndexStrategy
         optionBuilder.accept(options);
         this.analyzer = options.analyzer;
         this.maxResults = options.maxResults;
+        this.parser = new QueryParser(DEFAULT_FIELD, this.analyzer);
     }
 
     @Override
     public Analyzer getAnalyzer()
     {
         return this.analyzer;
+    }
+
+    @Override
+    public QueryParser getParser()
+    {
+        return this.parser;
     }
 
     @Override

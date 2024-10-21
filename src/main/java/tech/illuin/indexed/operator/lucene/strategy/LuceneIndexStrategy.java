@@ -18,6 +18,8 @@ public interface LuceneIndexStrategy
 
     Analyzer getAnalyzer();
 
+    QueryParser getParser();
+
     Query createQuery(QueryParser parser, Object term) throws ParseException;
 
     List<Field> createFields(Object key);

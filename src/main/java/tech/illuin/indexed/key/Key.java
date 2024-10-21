@@ -2,8 +2,11 @@ package tech.illuin.indexed.key;
 
 import tech.illuin.indexed.IndexType;
 import tech.illuin.indexed.operator.lucene.LuceneKey;
+import tech.illuin.indexed.operator.lucene.LuceneQueryKey;
 import tech.illuin.indexed.operator.lucene.strategy.LuceneIndexStrategy;
 import tech.illuin.indexed.operator.lucene.strategy.PartialMatchStrategy;
+import tech.illuin.indexed.operator.lucene.strategy.MultiFieldMatchStrategy.FieldFunction;
+import tech.illuin.indexed.operator.lucene.strategy.MultiFieldMatchStrategy.QueryFunction;
 import tech.illuin.indexed.operator.map.MapIndexType;
 import tech.illuin.indexed.operator.map.MapKey;
 import tech.illuin.indexed.operator.map.strategy.MapIndexStrategy;
@@ -87,5 +90,15 @@ public interface Key<T>
     static <T> LuceneKey<T> ofLucene(String name, Function<T, ?> function, LuceneIndexStrategy strategy)
     {
         return new LuceneKey<>(name, function, strategy);
+    }
+
+    static <T> LuceneKey<T> ofLuceneQuery(FieldFunction<T> fieldFunction, QueryFunction<T> queryFunction)
+    {
+        return new LuceneQueryKey<>(fieldFunction, queryFunction);
+    }
+
+    static <T> LuceneKey<T> ofLuceneQuery(String name, FieldFunction<T> fieldFunction, QueryFunction<T> queryFunction)
+    {
+        return new LuceneQueryKey<>(name, fieldFunction, queryFunction);
     }
 }
