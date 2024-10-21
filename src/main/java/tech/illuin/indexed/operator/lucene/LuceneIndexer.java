@@ -35,7 +35,7 @@ public class LuceneIndexer implements Closeable
             this.directory = new ByteBuffersDirectory();
             this.writer = new IndexWriter(this.directory, new IndexWriterConfig(analyzer));
             this.reader = DirectoryReader.open(this.writer);
-            this.parser = new QueryParser(DEFAULT_FIELD, analyzer);
+            this.parser = strategy.getParser();
         }
         catch (IOException e) {
             throw new LuceneIndexException("An error occurred while attempting to initialize a LuceneIndexer", e);

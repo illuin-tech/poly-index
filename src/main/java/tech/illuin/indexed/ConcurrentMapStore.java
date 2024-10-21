@@ -1,19 +1,20 @@
 package tech.illuin.indexed;
 
 import tech.illuin.indexed.key.Key;
-import tech.illuin.indexed.lock.RRWLock;
 import tech.illuin.indexed.query.Query;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author Pierre Lecerf (pierre.lecerf@illuin.tech)
  */
 public class ConcurrentMapStore<T> extends MapStore<T>
 {
-    private final RRWLock lock;
+    private final ReadWriteLock lock;
 
     /**
      * @param index
@@ -21,7 +22,7 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     public ConcurrentMapStore(Index<T> index)
     {
         super(index);
-        this.lock = new RRWLock();
+        this.lock = new ReentrantReadWriteLock();
     }
 
     @Override
@@ -34,11 +35,11 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     public MapStore<T> push(T value)
     {
         try {
-            this.lock.write.lock();
+            this.lock.writeLock().lock();
             return super.push(value);
         }
         finally {
-            this.lock.write.unlock();
+            this.lock.writeLock().unlock();
         }
     }
 
@@ -46,11 +47,11 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     public boolean containsMatch(T match)
     {
         try {
-            this.lock.read.lock();
+            this.lock.readLock().lock();
             return super.containsMatch(match);
         }
         finally {
-            this.lock.read.unlock();
+            this.lock.readLock().unlock();
         }
     }
 
@@ -58,11 +59,11 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     public List<T> get(List<Query<T>> queries)
     {
         try {
-            this.lock.read.lock();
+            this.lock.readLock().lock();
             return super.get(queries);
         }
         finally {
-            this.lock.read.unlock();
+            this.lock.readLock().unlock();
         }
     }
 
@@ -70,11 +71,11 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     public List<T> getAll(Key<T> key)
     {
         try {
-            this.lock.read.lock();
+            this.lock.readLock().lock();
             return super.getAll(key);
         }
         finally {
-            this.lock.read.unlock();
+            this.lock.readLock().unlock();
         }
     }
 
@@ -82,11 +83,11 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     public int count(Key<T> key)
     {
         try {
-            this.lock.read.lock();
+            this.lock.readLock().lock();
             return super.count(key);
         }
         finally {
-            this.lock.read.unlock();
+            this.lock.readLock().unlock();
         }
     }
 
@@ -94,11 +95,11 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     public List<T> remove(Query<T> query)
     {
         try {
-            this.lock.write.lock();
+            this.lock.writeLock().lock();
             return super.remove(query);
         }
         finally {
-            this.lock.write.unlock();
+            this.lock.writeLock().unlock();
         }
     }
 
@@ -106,11 +107,11 @@ public class ConcurrentMapStore<T> extends MapStore<T>
     public boolean isEmpty()
     {
         try {
-            this.lock.read.lock();
+            this.lock.readLock().lock();
             return super.isEmpty();
         }
         finally {
-            this.lock.read.unlock();
+            this.lock.readLock().unlock();
         }
     }
 }
