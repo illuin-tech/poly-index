@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import tech.illuin.indexed.exception.UndefinedKeyException;
 import tech.illuin.indexed.key.Key;
+import tech.illuin.indexed.query.IndexKeyCollection;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -141,6 +143,33 @@ public class MapStoreTest
     }
 
     @Test
+    public void testStore__shouldIndexValues__withCollectionKeys()
+    {
+        var idx1 = new Indexable("1", null, 0);
+        var idx2 = new Indexable("12", null, 1);
+        var idx3 = new Indexable("123", null, 2);
+        var idx4 = new Indexable("1234", null, 3);
+        var idx5 = new Indexable("12345", null, 4);
+
+        try (IndexedStore<Indexable> store = new MapStore<>(Index.of(A_COLLECTION)))
+        {
+            store.pushAll(List.of(idx1, idx2, idx3, idx4, idx5));
+
+            var idxMatch1 = new Indexable("123456", null, 0);
+            Assertions.assertTrue(store.containsMatch(idxMatch1));
+            Assertions.assertEquals(1, store.getMatch(idxMatch1, A_COLLECTION).size());
+
+            Assertions.assertEquals(0, store.getFirstMatch(new Indexable("1", null, -1), A_COLLECTION).map(Indexable::c).orElse(-1));
+            Assertions.assertEquals(1, store.getFirstMatch(new Indexable("12", null, -1), A_COLLECTION).map(Indexable::c).orElse(-1));
+            Assertions.assertEquals(2, store.getFirstMatch(new Indexable("123", null, -1), A_COLLECTION).map(Indexable::c).orElse(-1));
+            Assertions.assertEquals(3, store.getFirstMatch(new Indexable("1234", null, -1), A_COLLECTION).map(Indexable::c).orElse(-1));
+            Assertions.assertEquals(4, store.getFirstMatch(new Indexable("12345", null, -1), A_COLLECTION).map(Indexable::c).orElse(-1));
+            Assertions.assertEquals(4, store.getFirstMatch(new Indexable("123456", null, -1), A_COLLECTION).map(Indexable::c).orElse(-1));
+            Assertions.assertEquals(4, store.getFirstMatch(new Indexable("1234567", null, -1), A_COLLECTION).map(Indexable::c).orElse(-1));
+        }
+    }
+
+    @Test
     public void testStore__shouldRespectIndexOrder()
     {
         var idx1 = new Indexable("value_a1", "value_b1", 1234);
@@ -269,5 +298,11 @@ public class MapStoreTest
         public static final Key<Indexable> A_UNIQUE = Key.of(Indexable::a, FIRST);
         public static final Key<Indexable> B_UNIQUE = Key.of(Indexable::b, FIRST);
         public static final Key<Indexable> AB_UNIQUE = Key.of(idx -> String.join(":", idx.a(), idx.b()), LAST);
+        public static final Key<Indexable> A_COLLECTION = Key.of(idx -> {
+            List<String> keys = new ArrayList<>();
+            for (int i = idx.a().length() ; i > 0; --i)
+                keys.add(idx.a().substring(0, i));
+            return IndexKeyCollection.of(keys);
+        }, FIRST);
     }
 }

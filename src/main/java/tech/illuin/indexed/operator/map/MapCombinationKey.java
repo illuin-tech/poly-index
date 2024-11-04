@@ -1,10 +1,12 @@
 package tech.illuin.indexed.operator.map;
 
 import tech.illuin.indexed.operator.map.strategy.MapIndexStrategy;
+import tech.illuin.indexed.query.IndexKeyCollection;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Combination keys are a shorthand type of {@link MapKey} which produces keys by combining the return values of one or several functions,
@@ -35,57 +37,74 @@ public final class MapCombinationKey<T> extends MapKey<T>
         super(function, strategy);
     }
 
+    public static <T> MapCombinationKey<T> of(List<Variant<T>> variants, MapIndexType type)
+    {
+        return new MapCombinationKey<>(createIndexingFunction(variants), createQueryingFunction(variants), type);
+    }
+
+    public static <T> MapCombinationKey<T> of(List<Variant<T>> variants, MapIndexStrategy<T> strategy)
+    {
+        return new MapCombinationKey<>(createIndexingFunction(variants), strategy);
+    }
+
     public static <T> MapCombinationKey<T> of(Requirements<T> required, MapIndexType type)
     {
-        return of(required, excludes(), type);
+        return of(List.of(variant(required)), type);
     }
 
     public static <T> MapCombinationKey<T> of(Requirements<T> required, Exclusions<T> excluded, MapIndexType type)
     {
-        return new MapCombinationKey<>(createIndexingFunction(required, excluded), createQueryingFunction(required), type);
+        return of(List.of(variant(required, excluded)), type);
     }
 
     public static <T> MapCombinationKey<T> of(Requirements<T> required, Exclusions<T> excluded, MapIndexStrategy<T> strategy)
     {
-        return new MapCombinationKey<>(createIndexingFunction(required, excluded), strategy);
+        return of(List.of(variant(required, excluded)), strategy);
     }
 
-    private static <T> Function<T, ?> createIndexingFunction(Requirements<T> required, Exclusions<T> excluded)
+    private static <T> Function<T, ?> createIndexingFunction(List<Variant<T>> variants)
     {
-        return in -> joinIfNotNull(
-            DEFAULT_DELIMITER,
-            required.stream().map(kc -> kc.supply(in)).toList(),
-            excluded.stream().map(kc -> kc.supply(in)).collect(Collectors.toSet())
+        return in -> IndexKeyCollection.of(variants.stream()
+            .map(v -> joinIfNotNull(
+                DEFAULT_DELIMITER,
+                v.requirements().stream().map(kc -> kc.supply(in)).toList(),
+                v.exclusions().stream().map(kc -> kc.supply(in)).collect(Collectors.toSet())
+            ))
+            .toList()
         );
     }
 
-    private static <T> Function<T, ?> createQueryingFunction(Requirements<T> required)
+    private static <T> Function<T, ?> createQueryingFunction(List<Variant<T>> variants)
     {
-        return in -> joinIfNotNull(
-            DEFAULT_DELIMITER,
-            required.stream().map(kc -> kc.supply(in)).toList()
+        return in -> IndexKeyCollection.of(variants.stream()
+            .map(v -> joinIfNotNull(
+                DEFAULT_DELIMITER,
+                v.requirements().stream().map(kc -> kc.supply(in)).toList()
+            ))
+            .toList()
         );
+    }
+
+    public static <T> Variant<T> variant(Requirements<T> requirements)
+    {
+        return new Variant<>(requirements, excludes());
+    }
+
+    public static <T> Variant<T> variant(Requirements<T> requirements, Exclusions<T> exclusions)
+    {
+        return new Variant<>(requirements, exclusions);
     }
 
     @SafeVarargs
     public static <T> Requirements<T> requires(KeyComponent<T>... components)
     {
-        var requirements = new Requirements<T>();
-        requirements.addAll(Arrays.asList(components));
-        return requirements;
+        return new Requirements<>(Arrays.asList(components));
     }
 
     @SafeVarargs
     public static <T> Exclusions<T> excludes(KeyComponent<T>... components)
     {
-        var exclusions = new Exclusions<T>();
-        exclusions.addAll(Arrays.asList(components));
-        return exclusions;
-    }
-
-    private static String joinIfNotNull(String delimiter, String... args)
-    {
-        return joinIfNotNull(delimiter, Arrays.asList(args));
+        return new Exclusions<>(Arrays.asList(components));
     }
 
     private static String joinIfNotNull(String delimiter, List<String> args)
@@ -104,12 +123,61 @@ public final class MapCombinationKey<T> extends MapKey<T>
         return String.join(delimiter, args);
     }
 
-    private static final class Requirements<T> extends ArrayList<KeyComponent<T>> {}
-
-    private static final class Exclusions<T> extends HashSet<KeyComponent<T>> {}
-
+    @FunctionalInterface
     public interface KeyComponent<T>
     {
         String supply(T input);
+    }
+
+    public static final class Variant<T>
+    {
+        private final Requirements<T> requirements;
+        private final Exclusions<T> exclusions;
+
+        private Variant(Requirements<T> requirements, Exclusions<T> exclusions)
+        {
+            this.requirements = requirements;
+            this.exclusions = exclusions;
+        }
+
+        public Requirements<T> requirements()
+        {
+            return this.requirements;
+        }
+
+        public Exclusions<T> exclusions()
+        {
+            return this.exclusions;
+        }
+    }
+
+    public static final class Requirements<T>
+    {
+        private final List<KeyComponent<T>> components;
+
+        private Requirements(Collection<KeyComponent<T>> components)
+        {
+            this.components = new ArrayList<>(components);
+        }
+
+        public Stream<KeyComponent<T>> stream()
+        {
+            return this.components.stream();
+        }
+    }
+
+    public static final class Exclusions<T>
+    {
+        private final Set<KeyComponent<T>> components;
+
+        private Exclusions(Collection<KeyComponent<T>> components)
+        {
+            this.components = new HashSet<>(components);
+        }
+
+        public Stream<KeyComponent<T>> stream()
+        {
+            return this.components.stream();
+        }
     }
 }
