@@ -40,7 +40,7 @@
         <slf4j.version>1.7.36</slf4j.version>
         <junit.version>5.11.4</junit.version>
         <jacoco.version>0.8.12</jacoco.version>
-        <checkstyle.version>10.21.2</checkstyle.version>
+        <checkstyle.version>10.23.1</checkstyle.version>
         <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
         <maven-surefire.version>3.5.2</maven-surefire.version>
         <maven-source.version>3.3.1</maven-source.version>
