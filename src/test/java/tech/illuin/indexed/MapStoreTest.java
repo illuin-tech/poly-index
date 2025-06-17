@@ -10,6 +10,7 @@ import tech.illuin.indexed.query.IndexKeyCollection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static tech.illuin.indexed.MapStoreTest.Indexable.*;
 import static tech.illuin.indexed.operator.map.MapIndexType.FIRST;
@@ -269,6 +270,20 @@ public class MapStoreTest
             Assertions.assertEquals(3, store.count(A));
             Assertions.assertEquals(3, store.count(B));
             Assertions.assertEquals(2, store.count(B_UNIQUE));
+        }
+    }
+
+    @Test
+    public void testStore__keys()
+    {
+        try (IndexedStore<Indexable> store = new MapStore<>(Index.of(A, B, B_UNIQUE)))
+        {
+            Set<Key<Indexable>> keys = Assertions.assertDoesNotThrow(store::keys);
+
+            Assertions.assertEquals(3, keys.size());
+            Assertions.assertTrue(keys.contains(A));
+            Assertions.assertTrue(keys.contains(B));
+            Assertions.assertTrue(keys.contains(B_UNIQUE));
         }
     }
 

@@ -6,10 +6,7 @@ import tech.illuin.indexed.exception.IndexClosingException;
 import tech.illuin.indexed.key.Key;
 import tech.illuin.indexed.query.Query;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -105,6 +102,8 @@ public interface IndexedStore<T> extends AutoCloseable
     {
         return this.get(Collections.singletonList(query));
     }
+
+    Set<Key<T>> keys();
 
     List<T> get(List<Query<T>> queries);
 
