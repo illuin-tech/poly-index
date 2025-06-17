@@ -65,7 +65,13 @@ public class MapStore<T> implements IndexedStore<T>
         }
         return false;
     }
-    
+
+    @Override
+    public Set<Key<T>> keys()
+    {
+        return this.index.keys();
+    }
+
     @Override
     public List<T> get(List<Query<T>> queries)
     {
