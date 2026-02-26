@@ -6,7 +6,7 @@
 
     <groupId>tech.illuin</groupId>
     <artifactId>poly-index</artifactId>
-    <version>0.9.1</version>
+    <version>0.10</version>
     <packaging>jar</packaging>
 
     <name>Poly Index</name>
