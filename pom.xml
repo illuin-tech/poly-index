@@ -11,6 +11,7 @@
 
     <name>Poly Index</name>
     <description>Simple in-memory store with multiple/combined indexes.</description>
+    <url>https://github.com/illuin-tech/poly-index</url>
 
     <organization>
         <name>Illuin Technology</name>
