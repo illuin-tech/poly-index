@@ -1,4 +1,10 @@
-# Indexed Store
+# PolyIndex
+
+[![Maven Build](https://github.com/illuin-tech/poly-index/actions/workflows/maven-build.yml/badge.svg?branch=master)](https://github.com/illuin/poly-index/actions/workflows/maven-build.yml)
+[![Maven Central Version](https://img.shields.io/maven-central/v/tech.illuin/poly-index)](https://central.sonatype.com/artifact/tech.illuin/poly-index)
+[![javadoc](https://javadoc.io/badge2/tech.illuin/poly-index/javadoc.svg)](https://javadoc.io/doc/tech.illuin/poly-index)
+[![codecov](https://codecov.io/gh/illuin-tech/poly-index/graph/badge.svg?token=LomQShlUZJ)](https://codecov.io/gh/illuin-tech/poly-index)
+![GitHub](https://img.shields.io/github/license/illuin-tech/poly-index)
 
 The `poly-index` library is a lightweight Java utility providing simple in-memory indexing for objects, with multi-index lookup capabilities. It is basically a wrapper around standard java maps, but also allows Lucene-based in-memory indices. This allows the retrieval of objects using various indexing keys without manually managing multiple maps.
 
@@ -183,7 +189,7 @@ public static final Key<Person> ADVANCED_KEY = Key.ofLuceneQuery(
 );
 ```
 
-## IV. Dev Installation
+## V. Dev Installation
 
 This project will require you to have the following:
 
