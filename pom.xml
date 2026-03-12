@@ -58,7 +58,7 @@
         <checkstyle.version>11.0.1</checkstyle.version>
         <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
         <maven-surefire.version>3.5.3</maven-surefire.version>
-        <maven-source.version>3.3.1</maven-source.version>
+        <maven-source.version>3.4.0</maven-source.version>
         <maven-javadoc.version>3.11.3</maven-javadoc.version>
         <maven-checkstyle.version>3.6.0</maven-checkstyle.version>
         <maven-compiler.version>3.14.0</maven-compiler.version>
