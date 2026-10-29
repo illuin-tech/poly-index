@@ -18,7 +18,7 @@ Add the following in your `pom.xml`:
 <dependency>
     <groupId>tech.illuin</groupId>
     <artifactId>poly-index</artifactId>
-    <version>0.10</version>
+    <version>0.10.2</version>
 </dependency>
 ```
 
